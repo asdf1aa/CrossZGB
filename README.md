@@ -71,7 +71,7 @@ Contains the VWF library which allows to output the text using the proportional 
 <!-- END EXAMPLES SUBSECTION -->
 
 ## Documentation
-Check the [wiki](https://github.com/gbdk-2020/CrossZGB/wiki) and this README
+Check the [wiki](https://github.com/gbdk-2020/CrossZGB/wiki), this README, and the project documentation in [docs/README.md](docs/README.md) and [docs/architecture.md](docs/architecture.md).
 
 ## Support
 - discord: [gbdk/zgb discord](https://discord.gg/XCbjCvqnUY)
