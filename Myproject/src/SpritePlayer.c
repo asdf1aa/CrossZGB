@@ -8,16 +8,16 @@ void START() {
 
 void UPDATE() {
 	if(KEY_PRESSED(J_UP)) {
-		THIS->y --;
+		TranslateSprite(THIS, 0, -1);
 	} 
 	if(KEY_PRESSED(J_DOWN)) {
-		THIS->y ++;
+		TranslateSprite(THIS, 0, 1);
 	}
 	if(KEY_PRESSED(J_LEFT)) {
-		THIS->x --;
+		TranslateSprite(THIS, -1, 0);
 	}
 	if(KEY_PRESSED(J_RIGHT)) {
-		THIS->x ++;
+		TranslateSprite(THIS, 1, 0);
 	}
 }
 
