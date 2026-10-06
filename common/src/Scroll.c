@@ -258,16 +258,45 @@ void InitScroll(UINT8 map_bank, const struct MapInfo* map, const UINT8* coll_lis
 	ScrollScreenRedraw();
 }
 
-inline void ScrollSetTileMap(INT16 x, INT16 y, UINT8 w, UINT8 h, UINT8 * map, UINT8 * cmap) {
+static void ScrollSetTileMapPart(UINT8 x, UINT8 y, UINT8 w, UINT8 h, UINT8 * map, UINT8 * cmap) {
 	(void)cmap;
 	#if (defined(NINTENDO) && defined(CGB))
 	if (_cpu == CGB_TYPE) {
 		VBK_REG = 1;
-		set_tile_map(SCREEN_BKG_OFFSET_X + x + scroll_offset_x, y + scroll_offset_y, w, h, cmap);
+		set_tile_map(x, y, w, h, cmap);
 		VBK_REG = 0;
 	}
 	#endif
-	set_tile_map(SCREEN_BKG_OFFSET_X + x + scroll_offset_x, y + scroll_offset_y, w, h, map);
+	set_tile_map(x, y, w, h, map);
+}
+
+static void ScrollSetTileMapRow(INT16 x, INT16 y, UINT8 w, UINT8 * map, UINT8 * cmap) {
+#if defined(NINTENDO)
+	// Game Boy tile-map coordinates wrap at 32, so split spans that cross the edge.
+	UINT8 map_x = (UINT8)(SCREEN_BKG_OFFSET_X + x + scroll_offset_x) & 0x1Fu;
+	UINT8 map_y = (UINT8)(y + scroll_offset_y) & 0x1Fu;
+	UINT8 first_width = MIN(w, 32u - map_x);
+	ScrollSetTileMapPart(map_x, map_y, first_width, 1, map, cmap);
+	if (first_width < w) {
+		ScrollSetTileMapPart(0, map_y, w - first_width, 1, map + first_width, cmap + first_width);
+	}
+#else
+	ScrollSetTileMapPart(SCREEN_BKG_OFFSET_X + x + scroll_offset_x, y + scroll_offset_y, w, 1, map, cmap);
+#endif
+}
+
+static void ScrollSetTileMapColumn(INT16 x, INT16 y, UINT8 h, UINT8 * map, UINT8 * cmap) {
+#if defined(NINTENDO)
+	UINT8 map_x = (UINT8)(SCREEN_BKG_OFFSET_X + x + scroll_offset_x) & 0x1Fu;
+	UINT8 map_y = (UINT8)(y + scroll_offset_y) & 0x1Fu;
+	UINT8 first_height = MIN(h, 32u - map_y);
+	ScrollSetTileMapPart(map_x, map_y, 1, first_height, map, cmap);
+	if (first_height < h) {
+		ScrollSetTileMapPart(map_x, 0, 1, h - first_height, map + first_height, cmap + first_height);
+	}
+#else
+	ScrollSetTileMapPart(SCREEN_BKG_OFFSET_X + x + scroll_offset_x, y + scroll_offset_y, 1, h, map, cmap);
+#endif
 }
 
 void ScrollUpdateRowR(void) {
@@ -298,7 +327,7 @@ void ScrollUpdateRowR(void) {
 			#endif
 		#endif
 	}
-	ScrollSetTileMap(temp_coord, pending_w_y, MAX(SCREEN_RESTORE_W, pending_w_i), 1, map_buffer, map_cbuffer);
+	ScrollSetTileMapRow(temp_coord, pending_w_y, MAX(SCREEN_RESTORE_W, pending_w_i), map_buffer, map_cbuffer);
 	pending_w_i = 0;
 }
 
@@ -350,7 +379,7 @@ void ScrollUpdateRow(INT16 x, INT16 y) {
 	}
 	SWITCH_ROM(__save);
 
-	ScrollSetTileMap(temp_coord, y, SCREEN_TILE_REFRES_W, 1, map_buffer, map_cbuffer);
+	ScrollSetTileMapRow(temp_coord, y, SCREEN_TILE_REFRES_W, map_buffer, map_cbuffer);
 }
 
 void ScrollUpdateColumnR(void) {
@@ -381,7 +410,7 @@ void ScrollUpdateColumnR(void) {
 			#endif
 		#endif
 	}
-	ScrollSetTileMap(pending_h_x, temp_coord, 1, MAX(SCREEN_RESTORE_H, pending_h_i), map_buffer, map_cbuffer);
+	ScrollSetTileMapColumn(pending_h_x, temp_coord, MAX(SCREEN_RESTORE_H, pending_h_i), map_buffer, map_cbuffer);
 	pending_h_i = 0;
 }
 
@@ -433,7 +462,7 @@ void ScrollUpdateColumn(INT16 x, INT16 y) {
 	}
 	SWITCH_ROM(__save);
 
-	ScrollSetTileMap(x, temp_coord, 1, SCREEN_TILE_REFRES_H, map_buffer, map_cbuffer);
+	ScrollSetTileMapColumn(x, temp_coord, SCREEN_TILE_REFRES_H, map_buffer, map_cbuffer);
 }
 
 void RefreshScroll(void) {
@@ -505,4 +534,3 @@ void GetMapSize(UINT8 map_bank, const struct MapInfo* map, UINT16* tiles_w, UINT
 	if (tiles_h) *tiles_h = map->height;
 	SWITCH_ROM(__save);
 }
-
