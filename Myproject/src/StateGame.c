@@ -7,8 +7,8 @@ UINT8 collision_tiles[] = {1, 0};
 IMPORT_MAP(map);
 
 void START(void) {
-	scroll_target = SpriteManagerAdd(SpritePlayer, 70, 50);
-	SpriteManagerAdd(SpriteEnemy, 50, 50);
+	scroll_target = SpriteManagerAdd(SpritePlayer, 24, 24);
+	SpriteManagerAdd(SpriteEnemy, 48, 50);
 	InitScroll(BANK(map), &map, collision_tiles, 0);
 }
 
