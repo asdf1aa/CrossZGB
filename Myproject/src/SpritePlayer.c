@@ -4,6 +4,7 @@
 #include "SpriteManager.h"
 
 void START() {
+
 }
 
 void UPDATE() {
@@ -23,8 +24,14 @@ void UPDATE() {
 		TranslateSprite(THIS, 1, 0);
 	}
 	SPRITEMANAGER_ITERATE(i, spr) {
-		if(spr->type == SpriteEnemy || spr->type == SpriteEnemyStill) {
+		if(spr->type == SpriteEnemy || spr->type == SpriteEnemyStill || spr->type == SpriteEnemyH) {
 			if(CheckCollision(THIS, spr)) {
+				SetState(StateGame);
+			}
+		}
+		if(spr->type == Flag) {
+			if(CheckCollision(THIS, spr)){
+				game_score++;
 				SetState(StateGame);
 			}
 		}
