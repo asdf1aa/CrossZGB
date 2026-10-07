@@ -8,7 +8,6 @@ IMPORT_MAP(map);
 
 void START(void) {
 	scroll_target = SpriteManagerAdd(SpritePlayer, 24, 24);
-	SpriteManagerAdd(SpriteEnemy, 48, 50);
 	InitScroll(BANK(map), &map, collision_tiles, 0);
 }
 

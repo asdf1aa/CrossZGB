@@ -23,7 +23,7 @@ void UPDATE() {
 		TranslateSprite(THIS, 1, 0);
 	}
 	SPRITEMANAGER_ITERATE(i, spr) {
-		if(spr->type == SpriteEnemy) {
+		if(spr->type == SpriteEnemy || spr->type == SpriteEnemyStill) {
 			if(CheckCollision(THIS, spr)) {
 				SetState(StateGame);
 			}
